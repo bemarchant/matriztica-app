@@ -122,7 +122,9 @@ export function EntryForm({ entryId, defaultDate, defaultChip, onSaved }: Props)
     try {
       const dateStr = values.date as string;
       const timeStr = values.time || "12:00";
-      const [hours, minutes] = timeStr.split(":").map(Number);
+      const [hoursStr, minutesStr] = timeStr.split(":");
+      const hours = Number(hoursStr) || 12;
+      const minutes = Number(minutesStr) || 0;
       const dateTime = new Date(dateStr);
       dateTime.setHours(hours, minutes, 0, 0);
 
