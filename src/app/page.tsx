@@ -20,7 +20,6 @@ type Entry = {
 
 export default function HomePage() {
   const [today] = useState(new Date());
-  const [currentDate, setCurrentDate] = useState(today);
   const [entries, setEntries] = useState<Entry[]>([]);
   const [open, setOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -28,9 +27,9 @@ export default function HomePage() {
   const [draggedEmoji, setDraggedEmoji] = useState<string | null>(null);
 
   const refresh = async () => {
-    const start = new Date(currentDate);
+    const start = new Date(today);
     start.setHours(0, 0, 0, 0);
-    const end = new Date(currentDate);
+    const end = new Date(today);
     end.setHours(23, 59, 59, 999);
     
     const res = await fetch(
@@ -43,17 +42,16 @@ export default function HomePage() {
 
   useEffect(() => {
     void refresh();
-  }, [currentDate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const handleDayDrop = (e: React.DragEvent, targetDate: Date) => {
+  const handleDayDrop = (e: React.DragEvent) => {
     e.preventDefault();
     const emoji = e.dataTransfer.getData("emoji");
-    const emotion = e.dataTransfer.getData("emotion");
     
     if (!emoji) return;
     
-    // Abrir formulario con emoción pre-seleccionada
-    setSelectedDate(targetDate);
+    setSelectedDate(today);
     setSelectedEntry(null);
     setDraggedEmoji(emoji);
     setOpen(true);
@@ -61,12 +59,6 @@ export default function HomePage() {
 
   const handleDayDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-  };
-
-  const navigateDate = (days: number) => {
-    const newDate = new Date(currentDate);
-    newDate.setDate(newDate.getDate() + days);
-    setCurrentDate(newDate);
   };
 
   return (
@@ -80,42 +72,20 @@ export default function HomePage() {
       {/* Contenido principal */}
       <div className="flex-1 overflow-y-auto p-6">
         <div className="mx-auto max-w-4xl space-y-6">
-          {/* Navegación del día */}
+          {/* Encabezado del día */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigateDate(-1)}
-                className="rounded-lg px-4 py-2 hover:bg-purple-50 transition-all duration-200 hover:scale-105 active:scale-95 font-medium text-slate-700"
-                aria-label="Día anterior"
-              >
-                ‹
-              </button>
-              <div className="text-center">
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-brand to-pink-500 bg-clip-text text-transparent">
-                  {format(currentDate, "EEEE, d 'de' MMMM", { locale: es })}
-                </h1>
-                <p className="text-sm text-slate-500 mt-1">
-                  {format(currentDate, "yyyy")}
-                </p>
-              </div>
-              <button
-                onClick={() => navigateDate(1)}
-                className="rounded-lg px-4 py-2 hover:bg-purple-50 transition-all duration-200 hover:scale-105 active:scale-95 font-medium text-slate-700"
-                aria-label="Día siguiente"
-              >
-                ›
-              </button>
-              <button
-                onClick={() => setCurrentDate(today)}
-                className="rounded-lg px-3 py-1 text-sm bg-brand text-white hover:bg-brand/90 transition-all"
-              >
-                Hoy
-              </button>
+            <div className="text-center">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-brand to-pink-500 bg-clip-text text-transparent">
+                {format(today, "EEEE, d 'de' MMMM", { locale: es })}
+              </h1>
+              <p className="text-sm text-slate-500 mt-1">
+                {format(today, "yyyy")}
+              </p>
             </div>
             <button
               className="rounded-lg bg-gradient-to-r from-brand to-pink-500 px-6 py-2.5 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
               onClick={() => {
-                setSelectedDate(currentDate);
+                setSelectedDate(today);
                 setSelectedEntry(null);
                 setOpen(true);
               }}
@@ -126,7 +96,7 @@ export default function HomePage() {
 
           {/* Área de drop del día */}
           <div
-            onDrop={(e) => handleDayDrop(e, currentDate)}
+            onDrop={handleDayDrop}
             onDragOver={handleDayDragOver}
             className={`min-h-[400px] rounded-xl border-2 border-dashed p-6 transition-all duration-200 ${
               draggedEmoji
@@ -143,7 +113,7 @@ export default function HomePage() {
             <div className="text-sm text-slate-600 mb-4">
               {entries.length === 0
                 ? "Arrastra emojis aquí o haz click en 'Nueva entrada' para comenzar"
-                : `${entries.length} entrada${entries.length > 1 ? "s" : ""} este día`}
+                : `${entries.length} entrada${entries.length > 1 ? "s" : ""} hoy`}
             </div>
 
             {/* Entradas del día */}
@@ -192,7 +162,7 @@ export default function HomePage() {
             </div>
             <EntryForm
               entryId={selectedEntry?.id}
-              defaultDate={selectedDate || currentDate}
+              defaultDate={selectedDate || today}
               defaultEmotion={draggedEmoji ? getEmotionFromEmoji(draggedEmoji) : undefined}
               onSaved={() => {
                 setOpen(false);

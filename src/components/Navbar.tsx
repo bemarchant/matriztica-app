@@ -8,8 +8,6 @@ export function Navbar() {
   const navItems = [
     { href: "/", label: "Día", icon: "📅" },
     { href: "/calendar", label: "Calendario", icon: "📆" },
-    { href: "/review/weekly", label: "Revisión", icon: "📊" },
-    { href: "/entries", label: "Entradas", icon: "📝" },
   ];
 
   return (
