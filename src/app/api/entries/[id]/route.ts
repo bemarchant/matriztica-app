@@ -29,26 +29,14 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     where: { id: params.id },
     data: {
       date: data.date ? new Date(data.date as any) : undefined,
-      context: data.context,
-      emotionPrimary: data.emotionPrimary,
-      emotionIntensity: data.emotionIntensity,
-      csiText: data.csiText,
-      doingsText: data.doingsText,
-      reflectionText: data.reflectionText,
-      conversationText: data.conversationText,
-      conserve: data.conserve,
-      transform: data.transform,
-      domains: data.domains
-        ? { deleteMany: {}, create: data.domains.map((d) => ({ domain: String(d) })) }
-        : undefined,
-      tags: data.tags
-        ? {
-            deleteMany: {},
-            create: data.tags.map((name) => ({
-              tag: { connectOrCreate: { where: { name }, create: { name } } },
-            })),
-          }
-        : undefined,
+      bienestar: data.bienestar !== undefined ? data.bienestar : undefined,
+      context: data.lugar !== undefined ? data.lugar : undefined,
+      emotionPrimary: data.emocion !== undefined ? data.emocion : undefined,
+      emotionIntensity: data.bienestar !== undefined ? data.bienestar : undefined,
+      csiText: data.csi !== undefined ? data.csi : undefined,
+      doingsText: data.operacion !== undefined ? data.operacion : undefined,
+      reflectionText: data.relacion !== undefined ? data.relacion : undefined,
+      conversationText: data.relacion !== undefined ? data.relacion : undefined,
     },
     include: { domains: true, tags: { include: { tag: true } } },
   });

@@ -12,7 +12,8 @@ import {
 import { es } from "date-fns/locale";
 import { EntryForm } from "@/components/EntryForm";
 import { EntryPill } from "@/components/EntryPill";
-import { EmojiPalette } from "@/components/EmojiPalette";
+import { getEmojiForEmotion } from "@/lib/emoji-utils";
+import { ExperiencePalette, type ChipData } from "@/components/ExperiencePalette";
 
 type Entry = {
   id: string;
@@ -34,7 +35,7 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
   const [loading, setLoading] = useState(false);
-  const [draggedEmoji, setDraggedEmoji] = useState<string | null>(null);
+  const [selectedChip, setSelectedChip] = useState<ChipData | null>(null);
 
   const monthDays = useMemo(() => {
     const start = startOfWeek(startOfMonth(currentMonth), { weekStartsOn: 1 });
@@ -82,11 +83,25 @@ export default function CalendarPage() {
 
   const handleDayDrop = (e: React.DragEvent, date: Date) => {
     e.preventDefault();
-    const emoji = e.dataTransfer.getData("emoji");
-    if (!emoji) return;
+    const chipType = e.dataTransfer.getData("chipType");
+    const chipValue = e.dataTransfer.getData("chipValue");
+    const chipLabel = e.dataTransfer.getData("chipLabel");
+    const chipEmoji = e.dataTransfer.getData("chipEmoji");
+    const chipPrompt = e.dataTransfer.getData("chipPrompt");
+    
+    if (!chipType) return;
+    
+    const chip: ChipData = {
+      type: chipType as ChipData["type"],
+      label: chipLabel,
+      value: chipValue,
+      emoji: chipEmoji || undefined,
+      prompt: chipPrompt || undefined,
+    };
+    
     setSelectedDate(date);
     setSelectedEntry(null);
-    setDraggedEmoji(emoji);
+    setSelectedChip(chip);
     setOpen(true);
   };
 
@@ -104,10 +119,16 @@ export default function CalendarPage() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Panel lateral con emojis */}
-      <EmojiPalette
-        onEmojiDragStart={(emoji) => setDraggedEmoji(emoji)}
-        onEmojiDragEnd={() => setDraggedEmoji(null)}
+      {/* Panel lateral con chips */}
+      <ExperiencePalette
+        onChipClick={(chip) => {
+          setSelectedDate(today);
+          setSelectedEntry(null);
+          setSelectedChip(chip);
+          setOpen(true);
+        }}
+        onChipDragStart={() => {}}
+        onChipDragEnd={() => {}}
       />
 
       {/* Contenido principal */}
@@ -146,10 +167,11 @@ export default function CalendarPage() {
               onClick={() => {
                 setSelectedDate(today);
                 setSelectedEntry(null);
+                setSelectedChip(null);
                 setOpen(true);
               }}
             >
-              Nueva entrada
+              Nueva experiencia 🌈
             </button>
           </div>
 
@@ -203,23 +225,25 @@ export default function CalendarPage() {
                     {format(d, "d")}
                   </div>
                   <div className="flex flex-col gap-1">
-                    {dayEntriesList.slice(0, 3).map((e, idx) => (
-                      <div
-                        key={e.id}
-                        className="transition-all duration-300"
-                        style={{
-                          animationDelay: `${idx * 50}ms`,
-                        }}
-                      >
-                        <EntryPill
-                          {...e}
+                    {dayEntriesList.slice(0, 6).map((e, idx) => {
+                      const emoji = getEmojiForEmotion(e.emotionPrimary);
+                      return (
+                        <button
+                          key={e.id}
                           onClick={(evt) => handlePillClick(e, evt)}
-                        />
-                      </div>
-                    ))}
-                    {dayEntriesList.length > 3 && (
+                          className="text-xl transition-all duration-200 hover:scale-110 active:scale-95"
+                          title={e.emotionPrimary}
+                          style={{
+                            animationDelay: `${idx * 50}ms`,
+                          }}
+                        >
+                          {emoji}
+                        </button>
+                      );
+                    })}
+                    {dayEntriesList.length > 6 && (
                       <div className="text-xs text-slate-500 text-center py-1 font-medium">
-                        +{dayEntriesList.length - 3} más
+                        +{dayEntriesList.length - 6} más
                       </div>
                     )}
                   </div>
@@ -245,7 +269,7 @@ export default function CalendarPage() {
           >
             <div className="mb-4 flex items-center justify-between border-b pb-3">
               <h2 className="text-2xl font-bold bg-gradient-to-r from-brand to-pink-500 bg-clip-text text-transparent">
-                {selectedEntry ? "Editar entrada" : "Nueva entrada"}
+                {selectedEntry ? "Editar experiencia" : "Nueva experiencia 🌈"}
               </h2>
               <button
                 aria-label="Cerrar"
@@ -258,10 +282,10 @@ export default function CalendarPage() {
             <EntryForm
               entryId={selectedEntry?.id}
               defaultDate={selectedDate || today}
-              defaultEmotion={draggedEmoji ? getEmotionFromEmoji(draggedEmoji) : undefined}
+              defaultChip={selectedChip || undefined}
               onSaved={() => {
                 setOpen(false);
-                setDraggedEmoji(null);
+                setSelectedChip(null);
                 void refresh();
               }}
             />
@@ -272,20 +296,3 @@ export default function CalendarPage() {
   );
 }
 
-function getEmotionFromEmoji(emoji: string): string {
-  const emojiToEmotion: Record<string, string> = {
-    "😊": "alegría",
-    "😨": "miedo",
-    "😠": "rabia",
-    "😔": "tristeza",
-    "😌": "calma",
-    "😰": "ansiedad",
-    "✨": "esperanza",
-    "😴": "cansancio",
-    "🤔": "reflexión",
-    "💪": "fuerza",
-    "❤️": "amor",
-    "🙏": "gratitud",
-  };
-  return emojiToEmotion[emoji] || "emocional";
-}

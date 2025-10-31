@@ -4,17 +4,14 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { EntryForm } from "@/components/EntryForm";
 import { EntryPill } from "@/components/EntryPill";
-import { EmojiPalette } from "@/components/EmojiPalette";
+import { ExperiencePalette, type ChipData } from "@/components/ExperiencePalette";
 
 type Entry = {
   id: string;
   date: string;
   emotionPrimary: string;
-  emotionIntensity: number;
-  csiText: string;
   doingsText: string;
   reflectionText: string;
-  domains: { domain: string }[];
   context?: string | null;
 };
 
@@ -24,7 +21,7 @@ export default function HomePage() {
   const [open, setOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
-  const [draggedEmoji, setDraggedEmoji] = useState<string | null>(null);
+  const [selectedChip, setSelectedChip] = useState<ChipData | null>(null);
 
   const refresh = async () => {
     const start = new Date(today);
@@ -47,13 +44,25 @@ export default function HomePage() {
 
   const handleDayDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    const emoji = e.dataTransfer.getData("emoji");
+    const chipType = e.dataTransfer.getData("chipType");
+    const chipValue = e.dataTransfer.getData("chipValue");
+    const chipLabel = e.dataTransfer.getData("chipLabel");
+    const chipEmoji = e.dataTransfer.getData("chipEmoji");
+    const chipPrompt = e.dataTransfer.getData("chipPrompt");
     
-    if (!emoji) return;
+    if (!chipType) return;
+    
+    const chip: ChipData = {
+      type: chipType as ChipData["type"],
+      label: chipLabel,
+      value: chipValue,
+      emoji: chipEmoji || undefined,
+      prompt: chipPrompt || undefined,
+    };
     
     setSelectedDate(today);
     setSelectedEntry(null);
-    setDraggedEmoji(emoji);
+    setSelectedChip(chip);
     setOpen(true);
   };
 
@@ -61,12 +70,20 @@ export default function HomePage() {
     e.preventDefault();
   };
 
+  const handleChipClick = (chip: ChipData) => {
+    setSelectedDate(today);
+    setSelectedEntry(null);
+    setSelectedChip(chip);
+    setOpen(true);
+  };
+
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Panel lateral con emojis */}
-      <EmojiPalette
-        onEmojiDragStart={(emoji) => setDraggedEmoji(emoji)}
-        onEmojiDragEnd={() => setDraggedEmoji(null)}
+      {/* Panel lateral con chips */}
+      <ExperiencePalette
+        onChipClick={handleChipClick}
+        onChipDragStart={() => {}}
+        onChipDragEnd={() => {}}
       />
 
       {/* Contenido principal */}
@@ -87,10 +104,11 @@ export default function HomePage() {
               onClick={() => {
                 setSelectedDate(today);
                 setSelectedEntry(null);
+                setSelectedChip(null);
                 setOpen(true);
               }}
             >
-              Nueva entrada
+              Nueva experiencia 🌈
             </button>
           </div>
 
@@ -99,24 +117,24 @@ export default function HomePage() {
             onDrop={handleDayDrop}
             onDragOver={handleDayDragOver}
             className={`min-h-[400px] rounded-xl border-2 border-dashed p-6 transition-all duration-200 ${
-              draggedEmoji
+              selectedChip
                 ? "border-brand bg-brand/5 shadow-lg"
                 : "border-slate-300 bg-white/50 hover:border-purple-300"
             }`}
           >
-            {draggedEmoji && (
+            {selectedChip && (
               <div className="text-center text-brand font-medium mb-4 animate-pulse">
-                Suelta el emoji aquí para crear una entrada
+                Suelta el chip aquí para crear una experiencia
               </div>
             )}
             
             <div className="text-sm text-slate-600 mb-4">
               {entries.length === 0
-                ? "Arrastra emojis aquí o haz click en 'Nueva entrada' para comenzar"
-                : `${entries.length} entrada${entries.length > 1 ? "s" : ""} hoy`}
+                ? "Arrastra chips aquí o haz click en 'Nueva experiencia 🌈' para comenzar"
+                : `${entries.length} experiencia${entries.length > 1 ? "s" : ""} hoy`}
             </div>
 
-            {/* Entradas del día */}
+            {/* Experiencias del día */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {entries.map((entry) => (
                 <EntryPill
@@ -126,6 +144,7 @@ export default function HomePage() {
                     evt.stopPropagation();
                     setSelectedEntry(entry);
                     setSelectedDate(new Date(entry.date));
+                    setSelectedChip(null);
                     setOpen(true);
                   }}
                 />
@@ -150,7 +169,7 @@ export default function HomePage() {
           >
             <div className="mb-4 flex items-center justify-between border-b pb-3">
               <h2 className="text-2xl font-bold bg-gradient-to-r from-brand to-pink-500 bg-clip-text text-transparent">
-                {selectedEntry ? "Editar entrada" : "Nueva entrada"}
+                {selectedEntry ? "Editar experiencia" : "Nueva experiencia 🌈"}
               </h2>
               <button
                 aria-label="Cerrar"
@@ -163,10 +182,10 @@ export default function HomePage() {
             <EntryForm
               entryId={selectedEntry?.id}
               defaultDate={selectedDate || today}
-              defaultEmotion={draggedEmoji ? getEmotionFromEmoji(draggedEmoji) : undefined}
+              defaultChip={selectedChip || undefined}
               onSaved={() => {
                 setOpen(false);
-                setDraggedEmoji(null);
+                setSelectedChip(null);
                 void refresh();
               }}
             />
@@ -175,22 +194,4 @@ export default function HomePage() {
       )}
     </div>
   );
-}
-
-function getEmotionFromEmoji(emoji: string): string {
-  const emojiToEmotion: Record<string, string> = {
-    "😊": "alegría",
-    "😨": "miedo",
-    "😠": "rabia",
-    "😔": "tristeza",
-    "😌": "calma",
-    "😰": "ansiedad",
-    "✨": "esperanza",
-    "😴": "cansancio",
-    "🤔": "reflexión",
-    "💪": "fuerza",
-    "❤️": "amor",
-    "🙏": "gratitud",
-  };
-  return emojiToEmotion[emoji] || "emocional";
 }

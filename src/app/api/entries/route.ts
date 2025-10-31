@@ -52,21 +52,18 @@ export async function POST(req: Request) {
     data: {
       userId,
       date: new Date(data.date as any),
-      context: data.context,
-      emotionPrimary: data.emotionPrimary,
-      emotionIntensity: data.emotionIntensity,
-      csiText: data.csiText,
-      doingsText: data.doingsText,
-      reflectionText: data.reflectionText,
-      conversationText: data.conversationText,
-      conserve: data.conserve,
-      transform: data.transform,
-      domains: { create: data.domains.map((d) => ({ domain: String(d) })) },
-      tags: {
-        create: data.tags.map((name) => ({
-          tag: { connectOrCreate: { where: { name }, create: { name } } },
-        })),
-      },
+      bienestar: data.bienestar || 3, // Campo principal
+      context: data.lugar || null,
+      emotionPrimary: data.emocion || null,
+      emotionIntensity: data.bienestar || 3, // Usar bienestar como intensidad también
+      csiText: data.csi || null,
+      doingsText: data.operacion || null,
+      reflectionText: data.relacion || null,
+      conversationText: data.relacion || null,
+      conserve: null,
+      transform: null,
+      domains: { create: [{ domain: "emocional" }] }, // Por defecto
+      tags: { create: [] },
     },
     include: { domains: true, tags: { include: { tag: true } } },
   });

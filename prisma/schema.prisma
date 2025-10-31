@@ -21,13 +21,14 @@ model Entry {
   id                String      @id @default(cuid())
   userId            String
   date              DateTime
-  context           String?
-  emotionPrimary    String
-  emotionIntensity  Int
-  csiText           String
-  doingsText        String
-  reflectionText    String
-  conversationText  String?
+  bienestar         Int         @default(3) // Nuevo campo: bienestar 1-5
+  context           String?     // Lugar
+  emotionPrimary    String?     // Emoción (puede ser null ahora)
+  emotionIntensity  Int         @default(3)
+  csiText           String?     // CSI (texto libre)
+  doingsText        String?     // Operación
+  reflectionText    String?     // Relación
+  conversationText  String?     // Relación (duplicado por compatibilidad)
   conserve          String?
   transform         String?
   createdAt         DateTime    @default(now())
