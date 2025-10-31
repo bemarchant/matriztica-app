@@ -3,9 +3,9 @@ import { getEmojiForEmotion, getEmotionNameWithoutEmoji } from "@/lib/emoji-util
 type Props = {
   id: string;
   date: string;
-  emotionPrimary: string;
-  doingsText: string;
-  reflectionText: string;
+  emotionPrimary?: string | null;
+  doingsText?: string | null;
+  reflectionText?: string | null;
   context?: string | null;
   onClick?: (e: React.MouseEvent) => void;
   compact?: boolean; // Para mostrar solo emoji (usado en calendario)
@@ -22,8 +22,8 @@ export function EntryPill({
   compact = false,
 }: Props) {
   // Extraer emoji del campo sentir (puede ser "😊 alegría", solo "😊", o solo "alegría")
-  const emoji = getEmojiForEmotion(emotionPrimary);
-  const sentirText = getEmotionNameWithoutEmoji(emotionPrimary);
+  const emoji = getEmojiForEmotion(emotionPrimary || "");
+  const sentirText = getEmotionNameWithoutEmoji(emotionPrimary || "");
 
   // Versión compacta: solo emoji (para calendario)
   if (compact) {
@@ -69,7 +69,7 @@ export function EntryPill({
 
       {doingsText && (
         <div className="text-xs text-slate-600 line-clamp-2">
-          <span className="font-medium">Actividad:</span> {doingsText}
+          <span className="font-medium">Operación:</span> {doingsText}
         </div>
       )}
 
@@ -91,7 +91,7 @@ export function EntryPill({
         )}
         {doingsText && (
           <div className="mb-1">
-            <span className="text-slate-400">Actividad:</span> {doingsText}
+            <span className="text-slate-400">Operación:</span> {doingsText}
           </div>
         )}
         <div className="text-slate-400 text-xs border-t border-slate-700 pt-2 mt-2">

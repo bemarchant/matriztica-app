@@ -9,10 +9,11 @@ import { ExperiencePalette, type ChipData } from "@/components/ExperiencePalette
 type Entry = {
   id: string;
   date: string;
-  emotionPrimary: string;
-  doingsText: string;
-  reflectionText: string;
+  emotionPrimary?: string | null;
+  doingsText?: string | null;
+  reflectionText?: string | null;
   context?: string | null;
+  bienestar?: number;
 };
 
 export default function HomePage() {

@@ -18,13 +18,13 @@ import { ExperiencePalette, type ChipData } from "@/components/ExperiencePalette
 type Entry = {
   id: string;
   date: string;
-  emotionPrimary: string;
-  emotionIntensity: number;
-  csiText: string;
-  doingsText: string;
-  reflectionText: string;
-  domains: { domain: string }[];
+  emotionPrimary?: string | null;
+  emotionIntensity?: number | null;
+  csiText?: string | null;
+  doingsText?: string | null;
+  reflectionText?: string | null;
   context?: string | null;
+  bienestar?: number;
 };
 
 export default function CalendarPage() {
@@ -202,7 +202,7 @@ export default function CalendarPage() {
                   onDragOver={handleDayDragOver}
                   className={`min-h-[120px] rounded-lg border-2 p-2 shadow-sm transition-all duration-200 cursor-pointer transform hover:scale-[1.02] ${
                     isCurrentMonth(d)
-                      ? draggedEmoji
+                      ? selectedChip
                         ? "bg-brand/5 border-brand shadow-md"
                         : "bg-white border-slate-200 hover:border-brand hover:shadow-md"
                       : "bg-slate-50 border-slate-100 text-slate-400"
@@ -226,13 +226,13 @@ export default function CalendarPage() {
                   </div>
                   <div className="flex flex-col gap-1">
                     {dayEntriesList.slice(0, 6).map((e, idx) => {
-                      const emoji = getEmojiForEmotion(e.emotionPrimary);
+                      const emoji = getEmojiForEmotion(e.emotionPrimary || "");
                       return (
                         <button
                           key={e.id}
                           onClick={(evt) => handlePillClick(e, evt)}
                           className="text-xl transition-all duration-200 hover:scale-110 active:scale-95"
-                          title={e.emotionPrimary}
+                          title={e.emotionPrimary || "Experiencia"}
                           style={{
                             animationDelay: `${idx * 50}ms`,
                           }}

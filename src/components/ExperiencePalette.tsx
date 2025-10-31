@@ -117,15 +117,16 @@ export function ExperiencePalette({ onChipClick, onChipDragStart, onChipDragEnd 
   );
 
   return (
-    <div className="w-72 bg-white/90 backdrop-blur-sm border-r border-purple-100 overflow-y-auto p-4 h-screen sticky top-0">
-      <h2 className="font-bold text-sm text-slate-800 mb-4 sticky top-0 bg-white/90 backdrop-blur-sm pb-2 border-b border-purple-100">
+    <div className="w-72 bg-white/90 backdrop-blur-sm border-r border-purple-100 h-screen flex flex-col">
+      <h2 className="font-bold text-sm text-slate-800 px-4 pt-4 pb-3 border-b border-purple-100 bg-white/90 backdrop-blur-sm flex-shrink-0">
         🎨 Paleta de Experiencias
       </h2>
-      
-      {renderSection("Operación", OPERACIONES, "⚙️")}
-      {renderSection("Relación", RELACIONES, "👥")}
-      {renderSection("Lugar", LUGARES, "📍")}
-      {renderSection("Emoción", EMOCIONES, "😊")}
+      <div className="flex-1 overflow-y-auto p-4">
+        {renderSection("Operación", OPERACIONES, "⚙️")}
+        {renderSection("Relación", RELACIONES, "👥")}
+        {renderSection("Lugar", LUGARES, "📍")}
+        {renderSection("Emoción", EMOCIONES, "😊")}
+      </div>
     </div>
   );
 }

@@ -9,11 +9,17 @@
     "lint": "eslint . --max-warnings=0",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init",
+    "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:seed": "tsx prisma/seed.ts",
     "test": "vitest run",
     "test:ui": "vitest",
     "e2e": "playwright test",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "deploy:check": "bash scripts/pre-deploy-check.sh",
+    "deploy:vercel": "bash scripts/deploy.sh vercel",
+    "deploy:railway": "bash scripts/deploy.sh railway",
+    "migrate:prod": "bash scripts/migrate-prod.sh vercel",
+    "setup:env": "bash scripts/setup-env.sh"
   },
   "dependencies": {
     "@auth/core": "^0.37.2",

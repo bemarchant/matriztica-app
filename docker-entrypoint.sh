@@ -12,6 +12,12 @@ npx prisma migrate deploy 2>/dev/null || npx prisma migrate dev --name init || t
 echo "Generando Prisma Client..."
 npx prisma generate
 
-echo "Iniciando servidor de desarrollo..."
-exec npm run dev
-
+if [ "$NODE_ENV" = "production" ]; then
+  echo "Construyendo aplicación para producción..."
+  npm run build
+  echo "Iniciando servidor de producción..."
+  exec npm start
+else
+  echo "Iniciando servidor de desarrollo..."
+  exec npm run dev
+fi

@@ -21,6 +21,45 @@ Next.js 14 (App Router), TypeScript, Tailwind, Prisma + PostgreSQL (Neon en prod
 3. `/entries`: listado con filtros y búsqueda.
 4. `/export`: exportar semana a Markdown (PDF pendiente).
 
+## Deploy a Producción
+
+### Opción Rápida (Recomendada): Vercel + Neon
+
+1. **Preparar base de datos:**
+   - Crear cuenta en [Neon](https://neon.tech)
+   - Crear proyecto PostgreSQL
+   - Copiar `DATABASE_URL`
+
+2. **Configurar variables de entorno:**
+   ```bash
+   npm run setup:env
+   ```
+   O configurar manualmente en Vercel Dashboard.
+
+3. **Deploy:**
+   ```bash
+   npm run deploy:vercel
+   ```
+
+### Verificación Pre-Deploy
+
+Antes de hacer deploy, verifica que todo esté listo:
+```bash
+npm run deploy:check
+```
+
+### Scripts de Deploy Disponibles
+
+- `npm run deploy:check` - Verificar preparación
+- `npm run setup:env` - Configurar variables de entorno
+- `npm run deploy:vercel` - Deploy a Vercel
+- `npm run deploy:railway` - Deploy a Railway
+- `npm run migrate:prod` - Ejecutar migraciones en producción
+
+Para más detalles, ver `DEPLOY.md` y `scripts/README.md`.
+
+---
+
 ## Desarrollo local
 
 ### Requisitos previos

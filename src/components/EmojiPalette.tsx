@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { getEmojiForEmotion } from "@/lib/emoji-utils";
 
 type Props = {
   onEmojiDragStart: (emoji: string) => void;
@@ -112,15 +113,4 @@ export function EmojiPalette({ onEmojiDragStart, onEmojiDragEnd }: Props) {
   );
 }
 
-function getEmojiForEmotion(emotion: string): string {
-  const key = emotion.toLowerCase();
-  if (key.includes("alegr")) return "😊";
-  if (key.includes("miedo")) return "😨";
-  if (key.includes("rabia")) return "😠";
-  if (key.includes("triste")) return "😔";
-  if (key.includes("calma")) return "😌";
-  if (key.includes("ansiedad")) return "😰";
-  if (key.includes("esperanza")) return "✨";
-  return "🙂";
-}
 
