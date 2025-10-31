@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: matriztica_db
+    environment:
+      POSTGRES_USER: matriztica
+      POSTGRES_PASSWORD: matriztica_dev
+      POSTGRES_DB: matriztica
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U matriztica"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: matriztica_app
+    ports:
+      - "3000:3000"
+      - "5555:5555"
+    environment:
+      DATABASE_URL: "postgresql://matriztica:matriztica_dev@postgres:5432/matriztica?schema=public"
+      NEXTAUTH_URL: "http://localhost:3000"
+      NEXTAUTH_SECRET: "cambia-este-secreto-en-produccion"
+      EMAIL_SERVER_HOST: "localhost"
+      
+      EMAIL_SERVER_PORT: "1025"
+      EMAIL_FROM: "no-reply@matriztica.local"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+
