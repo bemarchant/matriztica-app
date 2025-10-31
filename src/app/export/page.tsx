@@ -1,6 +1,6 @@
 "use client";
 import { addDays, startOfWeek } from "date-fns";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 export default function ExportPage() {
   const [md, setMd] = useState<string>("");
@@ -21,7 +21,7 @@ export default function ExportPage() {
     return lines.join("\n");
   };
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     const start = startOfWeek(new Date(), { weekStartsOn: 1 });
     const to = addDays(start, 7).toISOString();
@@ -31,9 +31,9 @@ export default function ExportPage() {
       setMd(buildMarkdown(items));
     }
     setLoading(false);
-  };
+  }, []);
 
-  useEffect(() => { void load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   const download = async () => {
     const blob = new Blob([md], { type: "text/markdown" });
